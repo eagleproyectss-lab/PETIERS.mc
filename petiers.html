@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PETIERS - Bedrock PVP Rankings</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary: #0d0f14;
+    --bg-secondary: #13161e;
+    --bg-card: #1a1d28;
+    --bg-hover: #1f2330;
+    --accent: #00e5a0;
+    --accent-dim: #00b880;
+    --accent-glow: rgba(0, 229, 160, 0.15);
+    --accent2: #ff6b35;
+    --text-primary: #e8eaf0;
+    --text-secondary: #8a8fa8;
+    --text-muted: #555b72;
+    --border: rgba(255,255,255,0.06);
+    --border-accent: rgba(0, 229, 160, 0.3);
+    --gold: #f5c842;
+    --silver: #a8b2c8;
+    --bronze: #cd7c3a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse 80% 40% at 50% -10%, rgba(0, 229, 160, 0.07) 0%, transparent 60%),
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.015) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.015) 40px);
+  }
+
+  /* MINECRAFT 3D LOGO */
+  .mc-logo {
+    font-family: 'Press Start 2P', monospace;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0;
+    line-height: 1;
+    user-select: none;
+    text-decoration: none;
+  }
+  .mc-logo .part-pe {
+    color: #72E03A;
+    text-shadow:
+      2px 2px 0 #4AA820,
+      4px 4px 0 #4AA820,
+      6px 6px 0 #2E6610,
+      7px 7px 0 #1a3d08,
+      8px 8px 0 rgba(0,0,0,0.9);
+  }
+  .mc-logo .part-tiers {
+    color: #FFB030;
+    text-shadow:
+      2px 2px 0 #C07800,
+      4px 4px 0 #C07800,
+      6px 6px 0 #7A4C00,
+      7px 7px 0 #3d2600,
+      8px 8px 0 rgba(0,0,0,0.9);
+  }
+  .mc-logo.nav-size { font-size: 14px; }
+  .mc-logo.hero-size { font-size: clamp(32px, 6vw, 58px); }
+
+  /* NAV */
+  nav {
+    background: rgba(13,15,20,0.92);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    height: 64px;
+  }
+  .logo {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 22px;
+    letter-spacing: 2px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .logo-pe { color: var(--accent); }
+  .logo-tiers { color: var(--text-primary); }
+  .logo-dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 1px;
+    display: inline-block;
+    margin: 0 1px 8px;
+    animation: blink 1.8s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 8px;
+    flex: 1;
+  }
+  .nav-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.3px;
+  }
+  .nav-link:hover { color: var(--text-primary); background: var(--bg-hover); }
+  .nav-link.active { color: var(--accent); }
+
+  .nav-badge {
+    background: var(--accent);
+    color: #000;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'Orbitron', monospace;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .nav-search {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    width: 200px;
+    transition: all 0.2s;
+    outline: none;
+  }
+  .nav-search::placeholder { color: var(--text-muted); }
+  .nav-search:focus { border-color: var(--accent-dim); background: var(--bg-hover); }
+
+  /* MAIN */
+  .main { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+
+  /* TABS */
+  .tabs-wrapper {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px;
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.3px;
+    border: none;
+    background: transparent;
+    min-width: 72px;
+  }
+  .tab:hover { color: var(--text-secondary); background: var(--bg-hover); }
+  .tab.active {
+    color: var(--accent);
+    background: var(--accent-glow);
+    border: 1px solid var(--border-accent);
+  }
+  .tab-icon { font-size: 22px; line-height: 1; }
+
+  /* INFO BAR */
+  .info-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .info-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+  .info-pill span { color: var(--accent); font-family: 'Orbitron', monospace; font-size: 11px; }
+
+  .server-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+  .server-pill strong { color: var(--text-primary); }
+  .dot-live {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* TABLE */
+  .table-wrapper {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .table-header {
+    display: grid;
+    grid-template-columns: 60px 1fr 140px 1fr;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    font-family: 'Orbitron', monospace;
+    text-transform: uppercase;
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 24px;
+    text-align: center;
+    gap: 16px;
+  }
+  .empty-icon {
+    font-size: 56px;
+    line-height: 1;
+    opacity: 0.2;
+    filter: grayscale(1);
+  }
+  .empty-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+  }
+  .empty-sub {
+    font-size: 15px;
+    color: var(--text-muted);
+    font-weight: 500;
+    max-width: 360px;
+    line-height: 1.6;
+  }
+  .empty-cta {
+    margin-top: 8px;
+    background: var(--accent-glow);
+    border: 1px solid var(--border-accent);
+    color: var(--accent);
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    padding: 10px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .empty-cta:hover {
+    background: rgba(0,229,160,0.25);
+    transform: translateY(-1px);
+  }
+
+  /* TIER BADGES */
+  .tier-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .tier-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    gap: 1px;
+    line-height: 1;
+  }
+  .tier-badge .tier-icon { font-size: 16px; }
+
+  /* REGION BADGE */
+  .region-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 26px;
+    border-radius: 6px;
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .region-na { background: rgba(0,120,255,0.15); color: #4d9eff; border: 1px solid rgba(0,120,255,0.3); }
+  .region-eu { background: rgba(100,180,255,0.1); color: #80ccff; border: 1px solid rgba(100,180,255,0.2); }
+  .region-la { background: rgba(0,229,160,0.12); color: var(--accent); border: 1px solid var(--border-accent); }
+  .region-as { background: rgba(255,180,0,0.12); color: #ffcc44; border: 1px solid rgba(255,180,0,0.25); }
+
+  /* PLAYER ROW */
+  .player-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 140px 1fr;
+    align-items: center;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    cursor: pointer;
+    gap: 8px;
+  }
+  .player-row:last-child { border-bottom: none; }
+  .player-row:hover { background: var(--bg-hover); }
+
+  .rank-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-align: center;
+  }
+  .rank-num.gold { color: var(--gold); }
+  .rank-num.silver { color: var(--silver); }
+  .rank-num.bronze { color: var(--bronze); }
+
+  .player-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .player-avatar {
+    width: 44px; height: 44px;
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .player-avatar img {
+    width: 100%; height: 100%;
+    image-rendering: pixelated;
+    object-fit: cover;
+  }
+  .player-name {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--text-primary);
+    letter-spacing: 0.2px;
+  }
+  .player-rank-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 2px;
+  }
+  .rank-icon { font-size: 14px; }
+
+  /* RANK LABEL COLORS */
+  .combat-master { color: #e8b64a; }
+  .combat-ace { color: #a78bfa; }
+  .combat-expert { color: #60a5fa; }
+
+  /* STATS BAR */
+  .stats-row {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 140px;
+  }
+  .stat-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .stat-value {
+    font-family: 'Orbitron', monospace;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 1px;
+  }
+  .stat-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  /* HERO BANNER */
+  .hero {
+    text-align: center;
+    padding: 40px 24px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-tag {
+    display: inline-block;
+    background: var(--accent-glow);
+    border: 1px solid var(--border-accent);
+    color: var(--accent);
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    animation: fadeInDown 0.5s ease;
+  }
+  .hero-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(36px, 6vw, 60px);
+    font-weight: 900;
+    letter-spacing: 4px;
+    line-height: 1.1;
+    animation: fadeInUp 0.5s ease 0.1s both;
+  }
+  .hero-title .accent { color: var(--accent); }
+  .hero-sub {
+    margin-top: 12px;
+    font-size: 16px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    animation: fadeInUp 0.5s ease 0.2s both;
+  }
+
+  @keyframes fadeInDown { from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeInUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 24px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    max-width: 1200px;
+    margin: 40px auto 0;
+  }
+  footer span { color: var(--accent); font-family: 'Orbitron', monospace; font-size: 12px; }
+
+  /* RESPONSIVE */
+  @media(max-width: 700px) {
+    .table-header { grid-template-columns: 48px 1fr 80px; }
+    .table-header .col-tiers { display: none; }
+    .player-row { grid-template-columns: 48px 1fr 80px; }
+    .tier-row { display: none; }
+    .stats-row { gap: 12px; }
+    .hero-title { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="mc-logo nav-size">
+      <span class="part-pe">PE</span><span class="part-tiers">TIERS</span>
+    </a>
+    <div class="nav-links">
+      <a href="#" class="nav-link active">
+        🏆 Rankings
+      </a>
+      <a href="https://discord.gg/M6DJxCWk" target="_blank" class="nav-link">
+        💬 Discord
+      </a>
+      <a href="https://discord.gg/M6DJxCWk" target="_blank" class="nav-link">
+        🎟️ Tickets
+        <span class="nav-badge">OPEN</span>
+      </a>
+      <a href="#" class="nav-link" onclick="document.getElementById('modal-reglas').style.display='flex'; return false;">
+        📖 Reglas
+      </a>
+    </div>
+    <input class="nav-search" type="text" placeholder="🔍  Buscar jugador...">
+  </div>
+</nav>
+
+<!-- MODAL REGLAS -->
+<div id="modal-reglas" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:999; align-items:center; justify-content:center; padding:24px;" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:16px; max-width:560px; width:100%; max-height:85vh; overflow-y:auto; position:relative;">
+
+    <!-- Header -->
+    <div style="padding:24px 28px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between;">
+      <div>
+        <div style="font-family:'Orbitron',monospace; font-size:11px; letter-spacing:2px; color:var(--accent); margin-bottom:6px;">⚖️ REGLAMENTO OFICIAL</div>
+        <div style="font-family:'Orbitron',monospace; font-size:18px; font-weight:700; color:var(--text-primary);">Reglas de <span style="color:var(--accent);">PETIERS</span></div>
+      </div>
+      <button onclick="document.getElementById('modal-reglas').style.display='none'" style="background:var(--bg-hover); border:1px solid var(--border); color:var(--text-secondary); border-radius:8px; width:36px; height:36px; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center;">✕</button>
+    </div>
+
+    <!-- Reglas -->
+    <div style="padding:24px 28px; display:flex; flex-direction:column; gap:14px;">
+
+      <div style="background:rgba(255,80,80,0.07); border:1px solid rgba(255,80,80,0.2); border-left:3px solid #ff5050; border-radius:8px; padding:14px 16px; display:flex; gap:14px; align-items:flex-start;">
+        <span style="font-size:22px; flex-shrink:0;">🚫</span>
+        <div>
+          <div style="font-weight:700; color:#ff7070; font-size:14px; margin-bottom:4px;">No Hacks / Cheats</div>
+          <div style="font-size:13px; color:var(--text-secondary); line-height:1.6;">Queda terminantemente prohibido usar cualquier tipo de hack, cheat, mod de ventaja o cliente modificado. Cualquier jugador que sea detectado hackeando será descalificado y baneado del ranking de forma permanente.</div>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,80,80,0.07); border:1px solid rgba(255,80,80,0.2); border-left:3px solid #ff5050; border-radius:8px; padding:14px 16px; display:flex; gap:14px; align-items:flex-start;">
+        <span style="font-size:22px; flex-shrink:0;">⚙️</span>
+        <div>
+          <div style="font-weight:700; color:#ff7070; font-size:14px; margin-bottom:4px;">No Autoclicker / Macros</div>
+          <div style="font-size:13px; color:var(--text-secondary); line-height:1.6;">Está prohibido el uso de autoclickers, macros, scripts o cualquier herramienta que automatice acciones del juego. Las partidas deben jugarse de forma 100% manual.</div>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,80,80,0.07); border:1px solid rgba(255,80,80,0.2); border-left:3px solid #ff5050; border-radius:8px; padding:14px 16px; display:flex; gap:14px; align-items:flex-start;">
+        <span style="font-size:22px; flex-shrink:0;">📶</span>
+        <div>
+          <div style="font-weight:700; color:#ff7070; font-size:14px; margin-bottom:4px;">No Lag Abuse / VPN</div>
+          <div style="font-size:13px; color:var(--text-secondary); line-height:1.6;">Está prohibido el uso intencional de lag, VPN para alterar el ping o cualquier método que genere ventaja a través de la conexión. Si hay lag excesivo durante una partida, se puede solicitar repetirla.</div>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,176,48,0.07); border:1px solid rgba(255,176,48,0.2); border-left:3px solid #FFB030; border-radius:8px; padding:14px 16px; display:flex; gap:14px; align-items:flex-start;">
+        <span style="font-size:22px; flex-shrink:0;">🎮</span>
+        <div>
+          <div style="font-weight:700; color:#FFB030; font-size:14px; margin-bottom:4px;">Equipamiento justo</div>
+          <div style="font-size:13px; color:var(--text-secondary); line-height:1.6;">Ambos jugadores deben acordar el inventario y las condiciones antes de iniciar la partida. No se permiten items o ventajas no acordadas previamente.</div>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,176,48,0.07); border:1px solid rgba(255,176,48,0.2); border-left:3px solid #FFB030; border-radius:8px; padding:14px 16px; display:flex; gap:14px; align-items:flex-start;">
+        <span style="font-size:22px; flex-shrink:0;">🎬</span>
+        <div>
+          <div style="font-weight:700; color:#FFB030; font-size:14px; margin-bottom:4px;">Grabación obligatoria</div>
+          <div style="font-size:13px; color:var(--text-secondary); line-height:1.6;">Todas las partidas de posicionamiento deben grabarse en vídeo. Sin evidencia no se puede reclamar ni validar ningún resultado. Guarda siempre tus clips.</div>
+        </div>
+      </div>
+
+      <div style="background:rgba(0,229,160,0.06); border:1px solid rgba(0,229,160,0.2); border-left:3px solid var(--accent); border-radius:8px; padding:14px 16px; display:flex; gap:14px; align-items:flex-start;">
+        <span style="font-size:22px; flex-shrink:0;">🤝</span>
+        <div>
+          <div style="font-weight:700; color:var(--accent); font-size:14px; margin-bottom:4px;">Respeto entre jugadores</div>
+          <div style="font-size:13px; color:var(--text-secondary); line-height:1.6;">Se exige respeto dentro y fuera de las partidas. Insultos, toxicidad extrema o acoso pueden resultar en suspensión del ranking. Compite con fair play.</div>
+        </div>
+      </div>
+
+      <div style="background:rgba(0,229,160,0.06); border:1px solid rgba(0,229,160,0.2); border-left:3px solid var(--accent); border-radius:8px; padding:14px 16px; display:flex; gap:14px; align-items:flex-start;">
+        <span style="font-size:22px; flex-shrink:0;">🎟️</span>
+        <div>
+          <div style="font-weight:700; color:var(--accent); font-size:14px; margin-bottom:4px;">Posicionamiento por ticket</div>
+          <div style="font-size:13px; color:var(--text-secondary); line-height:1.6;">Para posicionarte en el ranking debes abrir un ticket en Discord. Un staff evaluará tu nivel y te asignará el tier correspondiente según tu desempeño.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer modal -->
+    <div style="padding:16px 28px; border-top:1px solid var(--border); text-align:center;">
+      <div style="font-size:12px; color:var(--text-muted);">El incumplimiento de las reglas puede resultar en descalificación permanente · <span style="color:var(--accent);">PETIERS Staff</span></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="hero">
+    <div class="hero-tag">⛏ BEDROCK EDITION · EN CONSTRUCCIÓN</div>
+    <a href="#" class="mc-logo hero-size" style="animation: fadeInUp 0.5s ease 0.1s both; display:inline-flex;">
+      <span class="part-pe">PE</span><span class="part-tiers">TIERS</span>
+    </a>
+    <div class="hero-sub">El ranking definitivo de PVP para Minecraft Bedrock — demuestra tus habilidades</div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Jugadores</div>
+      <div class="stat-value">2</div>
+      <div class="stat-sub">Posicionados actualmente</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Modalidades</div>
+      <div class="stat-value">6</div>
+      <div class="stat-sub">Estilos de combate</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Estado</div>
+      <div class="stat-value" style="font-size:14px; padding-top:6px; color: var(--gold);">⚡ PRONTO</div>
+      <div class="stat-sub">Inscripciones abiertas</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Región</div>
+      <div class="stat-value" style="font-size:14px; padding-top:6px;">🌎 LATAM</div>
+      <div class="stat-sub">NA · EU · próximamente</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs-wrapper">
+    <button class="tab active" data-tab="overall" onclick="setTab(this)">
+      <span class="tab-icon">🏆</span> Overall
+    </button>
+    <button class="tab" data-tab="crystal" onclick="setTab(this)">
+      <span class="tab-icon">💎</span> Crystal
+    </button>
+    <button class="tab" data-tab="sword" onclick="setTab(this)">
+      <span class="tab-icon">⚔️</span> Sword
+    </button>
+    <button class="tab" data-tab="axe" onclick="setTab(this)">
+      <span class="tab-icon">🪓</span> Axe
+    </button>
+    <button class="tab" data-tab="pot" onclick="setTab(this)">
+      <span class="tab-icon">🧪</span> Pot
+    </button>
+    <button class="tab" data-tab="bow" onclick="setTab(this)">
+      <span class="tab-icon">🏹</span> Bow
+    </button>
+    <button class="tab" data-tab="smp" onclick="setTab(this)">
+      <span class="tab-icon">🌍</span> SMP
+    </button>
+  </div>
+
+  <!-- INFO BAR -->
+  <div class="info-bar">
+    <div class="info-pill">
+      <div class="dot-live"></div>
+      Estado: <span>PRÓXIMAMENTE</span>
+    </div>
+    <div class="server-pill">
+      🎮 Bedrock Edition &nbsp;·&nbsp; <strong>Inscríbete vía Ticket</strong>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrapper">
+    <div class="table-header">
+      <div>#</div>
+      <div>JUGADOR</div>
+      <div>REGIÓN</div>
+      <div class="col-tiers" style="text-align:right">TIERS</div>
+    </div>
+
+    <!-- TAB: OVERALL -->
+    <div id="tab-overall" class="tab-content">
+      <!-- #1 Juanchyx4569 -->
+      <div class="player-row" style="background: linear-gradient(90deg, rgba(245,200,66,0.07) 0%, transparent 60%); border-left: 3px solid var(--gold);">
+        <div class="rank-num gold" style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+          <div style="font-size:18px;">1</div>
+          <div style="font-size:9px; letter-spacing:0.5px; color:var(--gold); font-family:'Orbitron',monospace;">TOP</div>
+        </div>
+        <div class="player-info">
+          <div class="player-avatar" style="border-color:rgba(245,200,66,0.4); box-shadow:0 0 12px rgba(245,200,66,0.15); background:var(--bg-secondary); display:flex; align-items:center; justify-content:center;">
+            <div id="skin-Juanchyx4569" style="width:44px; height:44px; position:relative; overflow:hidden; display:none;"></div>
+            <span id="fallback-Juanchyx4569" style="font-size:22px;">🎮</span>
+          </div>
+          <div>
+            <div class="player-name" style="color:var(--gold);">Juanchyx4569</div>
+            <div class="player-rank-label"><span class="rank-icon">🛡️</span><span class="combat-master">Combat Master</span></div>
+          </div>
+        </div>
+        <div><span class="region-badge region-la">LA</span></div>
+        <div class="tier-row">
+          <div class="tier-badge" style="background:rgba(96,165,250,0.15); border:1px solid rgba(96,165,250,0.35); color:#60a5fa;"><span class="tier-icon">🗡️</span>HT3</div>
+          <div class="tier-badge" style="background:rgba(96,165,250,0.15); border:1px solid rgba(96,165,250,0.35); color:#60a5fa;"><span class="tier-icon">🧪</span>HT3</div>
+        </div>
+      </div>
+      <!-- #2 eac9233 -->
+      <div class="player-row" style="background: linear-gradient(90deg, rgba(168,178,200,0.05) 0%, transparent 60%); border-left: 3px solid var(--silver);">
+        <div class="rank-num silver" style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+          <div style="font-size:18px;">2</div>
+        </div>
+        <div class="player-info">
+          <div class="player-avatar" style="border-color:rgba(168,178,200,0.4); box-shadow:0 0 12px rgba(168,178,200,0.1); background:var(--bg-secondary); display:flex; align-items:center; justify-content:center;">
+            <div id="skin-eac9233" style="width:44px; height:44px; position:relative; overflow:hidden; display:none;"></div>
+            <span id="fallback-eac9233" style="font-size:22px;">⚔️</span>
+          </div>
+          <div>
+            <div class="player-name" style="color:var(--silver);">eac9233</div>
+            <div class="player-rank-label"><span class="rank-icon">🛡️</span><span class="combat-ace">Combat Ace</span></div>
+          </div>
+        </div>
+        <div><span class="region-badge region-la">LA</span></div>
+        <div class="tier-row">
+          <div class="tier-badge" style="background:rgba(96,165,250,0.15); border:1px solid rgba(96,165,250,0.35); color:#60a5fa;"><span class="tier-icon">🗡️</span>HT3</div>
+        </div>
+      </div>
+      <!-- #3 Tierracabeza -->
+      <div class="player-row" style="border-left: 3px solid var(--bronze);">
+        <div class="rank-num bronze" style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+          <div style="font-size:18px;">3</div>
+        </div>
+        <div class="player-info">
+          <div class="player-avatar" style="border-color:rgba(205,124,58,0.4); box-shadow:0 0 12px rgba(205,124,58,0.1); background:var(--bg-secondary); display:flex; align-items:center; justify-content:center;">
+            <div id="skin-Tierracabeza" style="width:44px; height:44px; position:relative; overflow:hidden; display:none;"></div>
+            <span id="fallback-Tierracabeza" style="font-size:22px;">🗡️</span>
+          </div>
+          <div>
+            <div class="player-name" style="color:var(--bronze);">Tierracabeza</div>
+            <div class="player-rank-label"><span class="rank-icon">🗡️</span><span class="combat-expert">Sword Fighter</span></div>
+          </div>
+        </div>
+        <div><span class="region-badge region-la">LA</span></div>
+        <div class="tier-row">
+          <div class="tier-badge" style="background:rgba(148,163,184,0.15); border:1px solid rgba(148,163,184,0.35); color:#94a3b8;"><span class="tier-icon">🗡️</span>HT5</div>
+        </div>
+      </div>
+      <div class="empty-state" style="padding:36px 24px;">
+        <div class="empty-icon" style="font-size:32px;">🎟️</div>
+        <div class="empty-title" style="font-size:13px;">¿Quieres aparecer aquí?</div>
+        <div class="empty-sub" style="font-size:13px;">Abre un ticket en Discord y demuestra tus habilidades.</div>
+        <button class="empty-cta" onclick="window.open('https://discord.gg/M6DJxCWk','_blank')">🎟️ Abrir Ticket · Unirse al proyecto</button>
+      </div>
+    </div>
+    <div id="tab-crystal" class="tab-content" style="display:none;">
+      <div class="empty-state">
+        <div class="empty-icon">💎</div>
+        <div class="empty-title">Sin jugadores en Crystal</div>
+        <div class="empty-sub">Abre un ticket en Discord para posicionarte.</div>
+        <button class="empty-cta" onclick="window.open('https://discord.gg/M6DJxCWk','_blank')">🎟️ Abrir Ticket</button>
+      </div>
+    </div>
+
+    <!-- TAB: SWORD -->
+    <div id="tab-sword" class="tab-content" style="display:none;">
+      <!-- #1 eac9233 -->
+      <div class="player-row" style="background: linear-gradient(90deg, rgba(245,200,66,0.07) 0%, transparent 60%); border-left: 3px solid var(--gold);">
+        <div class="rank-num gold" style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+          <div style="font-size:18px;">1</div>
+          <div style="font-size:9px; letter-spacing:0.5px; color:var(--gold); font-family:'Orbitron',monospace;">TOP</div>
+        </div>
+        <div class="player-info">
+          <div class="player-avatar" style="border-color:rgba(245,200,66,0.4); box-shadow:0 0 12px rgba(245,200,66,0.15); background:var(--bg-secondary); display:flex; align-items:center; justify-content:center;">
+            <div id="skin-eac9233-sword" style="width:44px; height:44px; position:relative; overflow:hidden; display:none;"></div>
+            <span id="fallback-eac9233-sword" style="font-size:22px;">🗡️</span>
+          </div>
+          <div>
+            <div class="player-name" style="color:var(--gold);">eac9233</div>
+            <div class="player-rank-label"><span class="rank-icon">🗡️</span><span class="combat-expert">Sword Expert</span></div>
+          </div>
+        </div>
+        <div><span class="region-badge region-la">LA</span></div>
+        <div class="tier-row">
+          <div class="tier-badge" style="background:rgba(96,165,250,0.15); border:1px solid rgba(96,165,250,0.35); color:#60a5fa;"><span class="tier-icon">🗡️</span>HT3</div>
+        </div>
+      </div>
+      <!-- #2 Juanchyx4569 -->
+      <div class="player-row" style="background: linear-gradient(90deg, rgba(168,178,200,0.05) 0%, transparent 60%); border-left: 3px solid var(--silver);">
+        <div class="rank-num silver" style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+          <div style="font-size:18px;">2</div>
+        </div>
+        <div class="player-info">
+          <div class="player-avatar" style="border-color:rgba(168,178,200,0.4); box-shadow:0 0 12px rgba(168,178,200,0.1); background:var(--bg-secondary); display:flex; align-items:center; justify-content:center;">
+            <div id="skin-Juanchyx4569-sword" style="width:44px; height:44px; position:relative; overflow:hidden; display:none;"></div>
+            <span id="fallback-Juanchyx4569-sword" style="font-size:22px;">🗡️</span>
+          </div>
+          <div>
+            <div class="player-name" style="color:var(--silver);">Juanchyx4569</div>
+            <div class="player-rank-label"><span class="rank-icon">🗡️</span><span class="combat-expert">Sword Expert</span></div>
+          </div>
+        </div>
+        <div><span class="region-badge region-la">LA</span></div>
+        <div class="tier-row">
+          <div class="tier-badge" style="background:rgba(96,165,250,0.15); border:1px solid rgba(96,165,250,0.35); color:#60a5fa;"><span class="tier-icon">🗡️</span>HT3</div>
+        </div>
+      </div>
+      <!-- #3 Tierracabeza -->
+      <div class="player-row" style="border-left: 3px solid var(--bronze);">
+        <div class="rank-num bronze" style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+          <div style="font-size:18px;">3</div>
+        </div>
+        <div class="player-info">
+          <div class="player-avatar" style="border-color:rgba(205,124,58,0.4); box-shadow:0 0 12px rgba(205,124,58,0.1); background:var(--bg-secondary); display:flex; align-items:center; justify-content:center;">
+            <div id="skin-Tierracabeza-sword" style="width:44px; height:44px; position:relative; overflow:hidden; display:none;"></div>
+            <span id="fallback-Tierracabeza-sword" style="font-size:22px;">🗡️</span>
+          </div>
+          <div>
+            <div class="player-name" style="color:var(--bronze);">Tierracabeza</div>
+            <div class="player-rank-label"><span class="rank-icon">🗡️</span><span class="combat-expert">Sword Fighter</span></div>
+          </div>
+        </div>
+        <div><span class="region-badge region-la">LA</span></div>
+        <div class="tier-row">
+          <div class="tier-badge" style="background:rgba(148,163,184,0.15); border:1px solid rgba(148,163,184,0.35); color:#94a3b8;"><span class="tier-icon">🗡️</span>HT5</div>
+        </div>
+      </div>
+      <div class="empty-state" style="padding:36px 24px;">
+        <div class="empty-icon" style="font-size:32px;">🎟️</div>
+        <div class="empty-title" style="font-size:13px;">¿Quieres aparecer aquí?</div>
+        <div class="empty-sub" style="font-size:13px;">Abre un ticket en Discord y demuestra tus habilidades.</div>
+        <button class="empty-cta" onclick="window.open('https://discord.gg/M6DJxCWk','_blank')">🎟️ Abrir Ticket</button>
+      </div>
+    </div>
+
+    <div id="tab-axe" class="tab-content" style="display:none;">
+      <div class="empty-state">
+        <div class="empty-icon">🪓</div>
+        <div class="empty-title">Sin jugadores en Axe</div>
+        <div class="empty-sub">Abre un ticket en Discord para posicionarte.</div>
+        <button class="empty-cta" onclick="window.open('https://discord.gg/M6DJxCWk','_blank')">🎟️ Abrir Ticket</button>
+      </div>
+    </div>
+
+    <!-- TAB: POT -->
+    <div id="tab-pot" class="tab-content" style="display:none;">
+      <div class="player-row" style="background: linear-gradient(90deg, rgba(245,200,66,0.07) 0%, transparent 60%); border-left: 3px solid var(--gold);">
+        <div class="rank-num gold" style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+          <div style="font-size:18px;">1</div>
+          <div style="font-size:9px; letter-spacing:0.5px; color:var(--gold); font-family:'Orbitron',monospace;">TOP</div>
+        </div>
+        <div class="player-info">
+          <div class="player-avatar" style="border-color:rgba(245,200,66,0.4); box-shadow:0 0 12px rgba(245,200,66,0.15); background:var(--bg-secondary); display:flex; align-items:center; justify-content:center;">
+            <div id="skin-Juanchyx4569-pot" style="width:44px; height:44px; position:relative; overflow:hidden; display:none;"></div>
+            <span id="fallback-Juanchyx4569-pot" style="font-size:22px;">🧪</span>
+          </div>
+          <div>
+            <div class="player-name" style="color:var(--gold);">Juanchyx4569</div>
+            <div class="player-rank-label"><span class="rank-icon">🧪</span><span class="combat-master">Pot Expert</span></div>
+          </div>
+        </div>
+        <div><span class="region-badge region-la">LA</span></div>
+        <div class="tier-row">
+          <div class="tier-badge" style="background:rgba(96,165,250,0.15); border:1px solid rgba(96,165,250,0.35); color:#60a5fa;"><span class="tier-icon">🧪</span>HT3</div>
+        </div>
+      </div>
+      <div class="empty-state" style="padding:36px 24px;">
+        <div class="empty-icon" style="font-size:32px;">🎟️</div>
+        <div class="empty-title" style="font-size:13px;">¿Quieres aparecer aquí?</div>
+        <div class="empty-sub" style="font-size:13px;">Abre un ticket en Discord y demuestra tus habilidades.</div>
+        <button class="empty-cta" onclick="window.open('https://discord.gg/M6DJxCWk','_blank')">🎟️ Abrir Ticket</button>
+      </div>
+    </div>
+
+    <!-- TAB: BOW -->
+    <div id="tab-bow" class="tab-content" style="display:none;">
+      <div class="empty-state">
+        <div class="empty-icon">🏹</div>
+        <div class="empty-title">Sin jugadores en Bow</div>
+        <div class="empty-sub">Abre un ticket en Discord para posicionarte.</div>
+        <button class="empty-cta" onclick="window.open('https://discord.gg/M6DJxCWk','_blank')">🎟️ Abrir Ticket</button>
+      </div>
+    </div>
+
+    <!-- TAB: SMP -->
+    <div id="tab-smp" class="tab-content" style="display:none;">
+      <div class="empty-state">
+        <div class="empty-icon">🌍</div>
+        <div class="empty-title">Sin jugadores en SMP</div>
+        <div class="empty-sub">Abre un ticket en Discord para posicionarte.</div>
+        <button class="empty-cta" onclick="window.open('https://discord.gg/M6DJxCWk','_blank')">🎟️ Abrir Ticket</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CREADORES -->
+  <div style="margin-top: 40px;">
+    <div style="text-align:center; margin-bottom: 24px;">
+      <div style="font-family:'Orbitron',monospace; font-size:11px; letter-spacing:2px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px;">⚡ Equipo fundador</div>
+      <div style="font-family:'Orbitron',monospace; font-size:20px; font-weight:700; color:var(--text-primary);">Creadores de <span style="color:var(--accent);">PETIERS</span></div>
+    </div>
+
+    <div style="display:flex; gap:20px; justify-content:center; flex-wrap:wrap;">
+
+      <!-- TroloMC -->
+      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:28px 36px; display:flex; flex-direction:column; align-items:center; gap:14px; min-width:200px; transition: all 0.2s; position:relative; overflow:hidden;"
+           onmouseenter="this.style.borderColor='rgba(0,229,160,0.35)'; this.style.transform='translateY(-4px)'"
+           onmouseleave="this.style.borderColor='rgba(255,255,255,0.06)'; this.style.transform='translateY(0)'">
+        <div style="position:absolute; top:0; left:0; right:0; height:3px; background: linear-gradient(90deg, var(--accent), transparent);"></div>
+        <div style="width:72px; height:72px; border-radius:12px; overflow:hidden; border:2px solid rgba(0,229,160,0.3); box-shadow: 0 0 20px rgba(0,229,160,0.1); background:var(--bg-secondary); display:flex; align-items:center; justify-content:center;">
+          <div id="skin-TroloMC" style="width:72px; height:72px; position:relative; overflow:hidden; display:none;"></div>
+          <span id="fallback-TroloMC" style="font-size:36px;">🎮</span>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-family:'Orbitron',monospace; font-size:16px; font-weight:700; color:var(--text-primary); letter-spacing:0.5px;">TroloMC</div>
+          <div style="font-size:12px; color:var(--accent); font-weight:600; margin-top:4px; letter-spacing:0.3px;">🛠️ Co-fundador</div>
+        </div>
+      </div>
+
+      <!-- Juanchyx -->
+      <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:28px 36px; display:flex; flex-direction:column; align-items:center; gap:14px; min-width:200px; transition: all 0.2s; position:relative; overflow:hidden;"
+           onmouseenter="this.style.borderColor='rgba(255,176,48,0.35)'; this.style.transform='translateY(-4px)'"
+           onmouseleave="this.style.borderColor='rgba(255,255,255,0.06)'; this.style.transform='translateY(0)'">
+        <div style="position:absolute; top:0; left:0; right:0; height:3px; background: linear-gradient(90deg, #FFB030, transparent);"></div>
+        <div style="width:72px; height:72px; border-radius:12px; overflow:hidden; border:2px solid rgba(255,176,48,0.3); box-shadow: 0 0 20px rgba(255,176,48,0.1); background:var(--bg-secondary); display:flex; align-items:center; justify-content:center;">
+          <div id="skin-Juanchyx" style="width:72px; height:72px; position:relative; overflow:hidden; display:none;"></div>
+          <span id="fallback-Juanchyx" style="font-size:36px;">👑</span>
+        </div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-family:'Orbitron',monospace; font-size:16px; font-weight:700; color:var(--text-primary); letter-spacing:0.5px;">Juanchyx</div>
+          <div style="font-size:12px; color:#FFB030; font-weight:600; margin-top:4px; letter-spacing:0.3px;">👑 Co-fundador</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  </div>
+
+</div>
+
+<footer>
+  <span>PETIERS</span> · Ranking oficial de PVP para Minecraft Bedrock Edition · Hecho con ❤️ para la comunidad
+</footer>
+
+<script>
+  function setTab(el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    const tab = el.dataset.tab;
+    document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+    const target = document.getElementById('tab-' + tab);
+    if (target) target.style.display = 'block';
+  }
+
+  /* ── BEDROCK SKIN LOADER via GeyserMC (CSS crop, sin Canvas) ── */
+  async function loadBedrockSkin(gamertag, containerId, fallbackId) {
+    const container = document.getElementById(containerId);
+    const fallback  = document.getElementById(fallbackId);
+    if (!container) return;
+
+    const size = parseInt(container.style.width) || 44; // tamaño del contenedor en px
+
+    try {
+      // 1. XUID desde gamertag Xbox
+      const xuidRes = await fetch(`https://api.geysermc.org/v2/xbox/xuid/${encodeURIComponent(gamertag)}`);
+      if (!xuidRes.ok) throw new Error('xuid');
+      const { xuid } = await xuidRes.json();
+
+      // 2. Skin data desde XUID
+      const skinRes = await fetch(`https://api.geysermc.org/v2/skin/${xuid}`);
+      if (!skinRes.ok) throw new Error('skin');
+      const { texture_id } = await skinRes.json();
+
+      // 3. Mostrar cara con CSS (sin canvas, evita CORS)
+      // La skin es 64x64 px. La cara está en x:8, y:8 tamaño 8x8.
+      // Escalamos para que 8px de la skin = size px del contenedor
+      const scale     = size / 8;
+      const fullSize  = Math.round(64 * scale);
+      const offset    = Math.round(8  * scale);
+
+      const img = document.createElement('img');
+      img.src = `https://textures.minecraft.net/texture/${texture_id}`;
+      img.style.cssText = `
+        position:absolute;
+        width:${fullSize}px;
+        height:${fullSize}px;
+        left:-${offset}px;
+        top:-${offset}px;
+        image-rendering:pixelated;
+      `;
+      img.onload = () => {
+        container.appendChild(img);
+        container.style.display = 'block';
+        if (fallback) fallback.style.display = 'none';
+      };
+      img.onerror = () => { /* fallback permanece */ };
+
+    } catch(e) {
+      // El emoji fallback ya es visible por defecto
+    }
+  }
+
+  loadBedrockSkin('eac9233',      'skin-eac9233',            'fallback-eac9233');
+  loadBedrockSkin('eac9233',      'skin-eac9233-sword',      'fallback-eac9233-sword');
+  loadBedrockSkin('Tierracabeza', 'skin-Tierracabeza',       'fallback-Tierracabeza');
+  loadBedrockSkin('Tierracabeza', 'skin-Tierracabeza-sword', 'fallback-Tierracabeza-sword');
+  loadBedrockSkin('Juanchyx4569', 'skin-Juanchyx4569',       'fallback-Juanchyx4569');
+  loadBedrockSkin('Juanchyx4569', 'skin-Juanchyx4569-sword', 'fallback-Juanchyx4569-sword');
+  loadBedrockSkin('Juanchyx4569', 'skin-Juanchyx4569-pot',   'fallback-Juanchyx4569-pot');
+  loadBedrockSkin('TroloMC',      'skin-TroloMC',           'fallback-TroloMC');
+  loadBedrockSkin('Juanchyx4569', 'skin-Juanchyx',          'fallback-Juanchyx');
+</script>
+
+</body>
+</html>
